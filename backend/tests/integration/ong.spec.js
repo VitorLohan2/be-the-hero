@@ -19,10 +19,14 @@ describe('ONG', () => {
 	    email: "contato@contato.com",
 	    whatsapp: "4700000000",
 	    city: "Rio do Sul",
-	    uf: "SC"
+	    uf: "SC",
+      birthdate: "1990-01-01", // Adicionando data de nascimento
+      cpf: "12345678901", // Adicionando CPF
+      empresa: "DIME", // Adicionando empresa
+      setor: "Segurança" // Adicionando setor
     })
 
     expect(response.body).toHaveProperty('id')
-    expect(response.body.id).toHaveLength(8)
+    expect(response.body.id).toHaveLength(8) // Verifique se o ID gerado tem o comprimento correto
   })
 })

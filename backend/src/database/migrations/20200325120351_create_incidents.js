@@ -2,9 +2,13 @@ exports.up = function(knex) {
   return knex.schema.createTable('incidents', function (table) {
     table.increments()
     
-    table.string('title').notNullable()
-    table.string('description').notNullable()
-    table.decimal('value').notNullable()
+    table.string('nome').notNullable()
+    table.string('nascimento').notNullable()
+    table.string('cpf').notNullable()
+    table.string('empresa').notNullable()
+    table.string('setor').notNullable()
+    table.string('telefone')
+    table.string('observacao')
     
     table.string('ong_id').notNullable()
     

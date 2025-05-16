@@ -7,7 +7,7 @@ import api from '../../services/api'
 import './styles.css'
 
 import logoImg from '../../assets/logo.svg'
-import heroesImg from '../../assets/heroes.png'
+import heroesImg from '../../assets/IllustrationSistema.png'
 
 export default function Logon() {
   const [id, setId] = useState('')
@@ -30,10 +30,10 @@ export default function Logon() {
   return (
     <div className="logon-container">
       <section className="form">
-        <img src={logoImg} alt="Be The Hero" />
+        <img src={logoImg} alt="Controle de Segurança" width={"350px"}/>
 
       <form onSubmit={handleLogin}>
-        <h1> Faça seu Logon </h1>
+        <h1> Faça seu Login </h1>
         <input placeholder="Sua ID" value={id} onChange={e => setId(e.target.value)} />
         <button className="button" type="submit"> Entrar </button>
         <Link className="back-link" to="/register">
@@ -42,7 +42,7 @@ export default function Logon() {
         </Link>
       </form>
       </section>
-      <img src={heroesImg} alt="Heroes" />
+      <img src={heroesImg} alt="Heroes" width={"550px"}/>
     </div>
   )
 }
