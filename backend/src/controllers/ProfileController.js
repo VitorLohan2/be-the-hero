@@ -1,12 +1,13 @@
-const connection = require('../database/connection')
+const connection = require('../database/connection');
 
 module.exports = {
   async index(request, response) {
-    const ong_id = request.headers.authorization
+    // Você ainda pode manter o ong_id caso precise identificar o usuário logado
+    const ong_id = request.headers.authorization;
 
-    const incidents = await connection('incidents').where('ong_id', ong_id)
-    .select('*')
+    // Buscar todos os registros, independentemente do ong_id
+    const incidents = await connection('incidents').select('*');
 
-  return response.json(incidents)
+    return response.json(incidents);
   }
-}
+};

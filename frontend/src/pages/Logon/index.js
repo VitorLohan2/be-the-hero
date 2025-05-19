@@ -20,6 +20,7 @@ export default function Logon() {
       
       localStorage.setItem('ongId', id)
       localStorage.setItem('ongName', response.data.name)
+      localStorage.setItem('ongType', response.data.type)
       
       history.push('/profile')
     } catch (err) {

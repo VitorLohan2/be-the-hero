@@ -6,7 +6,7 @@ module.exports = {
     
     try {
       const history = await connection('history')
-        .where('ong_id', ong_id)
+        //.where('ong_id', ong_id)
         .select([
           'id',
           'name',
@@ -86,7 +86,7 @@ module.exports = {
     
     try {
       const stats = await connection('history')
-        .where('ong_id', ong_id)
+        //.where('ong_id', ong_id)
         .select(
           connection.raw('COUNT(*) as total_visits'),
           connection.raw('AVG(TIMESTAMPDIFF(MINUTE, entry_date, exit_date)) as avg_duration'),

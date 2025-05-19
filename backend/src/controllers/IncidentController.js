@@ -46,21 +46,36 @@
       return response.json({ id })
     },
 
-    async delete(request, response) {
-      const { id } = request.params
-      const ong_id = request.headers.authorization
+  async delete(request, response) {
+  const { id } = request.params;
+  const ong_id = request.headers.authorization;
 
-      const incident = await connection('incidents')
-        .where('id', id)
-        .select('ong_id')
-        .first()
+  // Buscar o setor da ONG que está tentando deletar
+  const ong = await connection('ongs')
+    .where('id', ong_id)
+    .select('type')
+    .first();
 
-      if (incident.ong_id != ong_id) {
-        return response.status(401).json({ error: 'Operation not permitted.' })
-      }
+  // Verificar se a ONG existe e se é do Type ADM
+  if (!ong || ong.type !== 'ADM') {  // Altere de 'setor' para 'type'
+  return response.status(403).json({ 
+    error: 'Operação não permitida. Somente administradores podem deletar.' 
+  });
+  } 
 
-      await connection('incidents').where('id', id).delete()
+  // Verificar se o incidente existe
+  const incident = await connection('incidents')
+    .where('id', id)
+    .select('id')
+    .first();
 
-      return response.status(204).send()
-    }
+  if (!incident) {
+    return response.status(404).json({ error: 'Incidente não encontrado.' });
   }
+
+  // Deletar incidente
+  await connection('incidents').where('id', id).delete();
+
+  return response.status(204).send();
+  }
+}

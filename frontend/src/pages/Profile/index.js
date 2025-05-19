@@ -24,19 +24,28 @@ export default function Profile() {
     })
   }, [ongId])
   
-  async function handleDeleteIncident(id) {
-    try {
-      await api.delete(`incidents/${id}`, {
-        headers: {
-          Authorization: ongId,
-        }
-      })
-      
-      setIncidents(incidents.filter(incident => incident.id !== id))
-    } catch (err) {
-      alert('Erro ao deletar caso, tente novamente.')
-    }
+ async function handleDeleteIncident(id) {
+  console.log('Botão clicado, ID:', id); // ← Adicione esta linha
+  if (!window.confirm('Tem certeza que deseja deletar este cadastro?')) {
+    return;
   }
+
+  try {
+    const response = await api.delete(`incidents/${id}`, {
+      headers: {
+        Authorization: ongId,
+      }
+    });
+
+    if (response.status === 204) {
+      setIncidents(incidents.filter(incident => incident.id !== id));
+      alert('Cadastro deletado com sucesso!');
+    }
+  } catch (err) {
+    const error = err.response?.data?.error || err.message;
+    alert(`Falha ao deletar: ${error}`);
+  }
+}
 
   async function handleRegisterVisit(id) {
   try {
@@ -149,11 +158,13 @@ export default function Profile() {
                   >
                     <FiEdit size={16} />
                   </button>
-                  <button 
-                    onClick={() => handleDeleteIncident(incident.id)} 
-                    type="button"
-                    aria-label="Deletar caso"
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteIncident(incident.id);
+                    }}
                     className="delete-button"
+                    title="Deletar cadastro"
                   >
                     <FiTrash2 size={16} />
                   </button>

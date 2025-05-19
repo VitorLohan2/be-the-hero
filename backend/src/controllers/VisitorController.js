@@ -5,7 +5,7 @@ module.exports = {
     const ong_id = request.headers.authorization;
 
     const visitors = await connection('visitors')
-      .where('ong_id', ong_id)
+      //.where('ong_id', ong_id)
       .select([
         'id',
         'name',
@@ -73,7 +73,7 @@ module.exports = {
 
     try {
       const results = await connection('history')
-        .where('ong_id', ongId)
+        //.where('ong_id', ongId)
         .select('*');
 
       return response.json(results);

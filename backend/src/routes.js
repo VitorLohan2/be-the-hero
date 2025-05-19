@@ -41,10 +41,19 @@ routes.get('/incidents', celebrate({
 
 routes.post('/incidents', IncidentController.create)
 
-routes.delete('/incidents/:id', celebrate({
+/*routes.delete('/incidents/:id', celebrate({
   [Segments.PARAMS]: Joi.object().keys({
     id: Joi.number().required(),
   })
+}), IncidentController.delete)*/
+
+routes.delete('/incidents/:id', celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.number().required(),          // Valida que o ID é um número
+  }),
+  [Segments.HEADERS]: Joi.object({
+    authorization: Joi.string().required(),   // Exige o token de autorização (ong_id)
+  }).unknown(),   // Permite outros headers além do 'authorization'
 }), IncidentController.delete)
 
 routes.get('/visitors', celebrate({

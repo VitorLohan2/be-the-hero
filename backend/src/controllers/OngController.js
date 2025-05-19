@@ -10,7 +10,7 @@ module.exports = {
 
   async create(request, response) {
 
-    const { name, birthdate, cpf, empresa, setor, email, whatsapp, city, uf } = request.body
+    const { name, birthdate, cpf, empresa, setor, email, whatsapp, city, uf, type } = request.body
 
     // Limpa o CPF (remove pontos e traço)
     const cleanedCpf = cpf.replace(/\D/g, '')
@@ -27,7 +27,8 @@ module.exports = {
       email,
       whatsapp,
       city,
-      uf
+      uf,
+      type: type || 'USER' // padrão USER, se não for enviado
     })
 
     return response.json({ id })
