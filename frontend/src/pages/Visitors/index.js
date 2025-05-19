@@ -23,12 +23,32 @@ export default function Visitors() {
     });
   }, [ongId]);
 
+  // 👉 Função adicionada:
+  async function handleEndVisit(id) {
+    try {
+      await api.put(`visitors/${id}/exit`, {}, {
+        headers: {
+          Authorization: ongId,
+        }
+      });
+      
+      alert('Visita Finalizada com sucesso!');
+      // Atualiza a lista de visitantes se necessário
+      history.push('/history');
+
+      setVisitors(visitors.filter(visitor => visitor.id !== id));
+    } catch (err) {
+      alert('Erro ao encerrar visita, tente novamente.');
+    }
+  }
+
   return (
     <div className="visitors-container">
       <header>
+        <div className="ajuste-Titulo">
         <img src={logoImg} alt="DIME" />
         <span>Bem-vindo(a), {ongName}</span>
-        
+        </div>
         <Link className="back-link" to="/profile">
           <FiArrowLeft size={16} color="#E02041" />
           Voltar
@@ -52,6 +72,7 @@ export default function Visitors() {
                   <th>Empresa</th>
                   <th>Setor</th>
                   <th>Data/Hora Entrada</th>
+                  <th>Ação</th> 
                 </tr>
               </thead>
               <tbody>
@@ -67,6 +88,11 @@ export default function Visitors() {
                         new Date(visitor.entry_date).toLocaleString() : 
                         new Date(visitor.created_at).toLocaleString()
                       }
+                    </td>
+                    <td> 
+                      <button onClick={() => handleEndVisit(visitor.id)} className="end-visit-button">
+                        Encerrar Visita
+                      </button>
                     </td>
                   </tr>
                 ))}

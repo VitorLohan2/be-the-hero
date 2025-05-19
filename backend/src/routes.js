@@ -65,4 +65,36 @@ routes.post('/visitors', celebrate({
   })
 }), VisitorController.create);
 
+// Encerrar visita
+routes.put('/visitors/:id/exit',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.string().required(),
+    }),
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required(),
+    }).unknown()
+  }),
+  VisitorController.endVisit
+);
+
+// Buscar histórico
+routes.get('/history',
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required(),
+    }).unknown()
+  }),
+  VisitorController.history
+);
+
+/*routes.post('/visitors/:id/end', celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    id: Joi.number().required()
+  }),
+  [Segments.HEADERS]: Joi.object({
+    authorization: Joi.string().required()
+  }).unknown()
+}), VisitorController.endVisit);*/
+
 module.exports = routes

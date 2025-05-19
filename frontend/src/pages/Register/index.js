@@ -42,6 +42,13 @@ export default function Register() {
       return
     }
 
+    // Validação do WhatsApp
+    const cleanedWhatsapp = whatsapp.replace(/\D/g, '')
+    if (cleanedWhatsapp.length !== 11) {
+      alert('O número de Telefone deve conter 11 dígitos (DD + número).')
+      return
+    }
+
     // Validação da empresa (agora obrigatória da lista)
     if (!empresa) {
       alert('Selecione uma empresa!');
@@ -102,7 +109,7 @@ export default function Register() {
           </Link>
         </section>
         <form onSubmit={handleRegister}>
-          <input placeholder="Nome" value={name} onChange={e => setName(e.target.value)} />
+          <input placeholder="Nome" value={name} onChange={e => setName(e.target.value.toUpperCase())} />
            <input 
             type="date" 
             placeholder="Nascimento" 
@@ -144,10 +151,12 @@ export default function Register() {
           </select>
 
           <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-          <input placeholder="WhatsApp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} />
+          <input placeholder="(DD)99999-9999" value={whatsapp} onChange={e => { const value = e.target.value.replace(/\D/g, '').slice(0, 11) 
+          setWhatsapp(value)}} />
           <div className="input-group">
-            <input placeholder="Cidade" value={city} onChange={e => setCity(e.target.value)} />
-            <input placeholder="UF" value={uf} onChange={e => setUf(e.target.value)} style={{ width: 80 }} />
+            <input placeholder="Cidade" value={city} onChange={e => setCity(e.target.value.toUpperCase())} />
+            <input placeholder="UF" value={uf} onChange={e => { const value = e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2) 
+            setUf(value)}} style={{ width: 80 }} />
           </div>
           <button className="button" type="submit"> Cadastrar </button>
         </form>

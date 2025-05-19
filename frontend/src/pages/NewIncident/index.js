@@ -22,8 +22,9 @@ export default function NewVisitor() {
   const setores = ["Reunião", "Entrega", "Visita"];
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+  const { name, value } = e.target;
+  const newValue = name === 'nome' ? value.toUpperCase() : value;
+  setForm(prev => ({ ...prev, [name]: newValue }));
   };
 
   const handleSubmit = async (e) => {

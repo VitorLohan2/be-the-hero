@@ -21,6 +21,11 @@
   margin-left: 24px;
 }
 
+.ajuste-Titulo {
+  display: flex;
+  align-items: center;
+}
+
 .history-container .back-link {
   display: flex;
   align-items: center;

@@ -8,10 +8,10 @@ import './styles.css';
 import logoImg from '../../assets/logo.svg';
 
 export default function History() {
-  const [visits, setVisits] = useState([]);
-  const history = useHistory();
+  const [historyData, setHistoryData] = useState([]);
   const ongId = localStorage.getItem('ongId');
   const ongName = localStorage.getItem('ongName');
+  const history = useHistory();
 
   useEffect(() => {
     api.get('history', {
@@ -19,29 +19,30 @@ export default function History() {
         Authorization: ongId,
       }
     }).then(response => {
-      setVisits(response.data);
+      setHistoryData(response.data);
     });
   }, [ongId]);
 
   return (
-    <div className="history-container">
+    <div className="visitors-container">
       <header>
+        <div className="ajuste-Titulo">
         <img src={logoImg} alt="DIME" />
         <span>Bem-vindo(a), {ongName}</span>
-        
+        </div>
         <Link className="back-link" to="/profile">
           <FiArrowLeft size={16} color="#E02041" />
-          Voltar para perfil
+          Voltar
         </Link>
       </header>
 
       <div className="content">
-        <section className="history-list">
-          <h1>Histórico Completo</h1>
-          <h2>Registro de todas as visitas</h2>
+        <section className="visitors-history">
+          <h1>Histórico</h1>
+          <h2>Visitantes com visita encerrada</h2>
 
-          {visits.length === 0 ? (
-            <p className="no-visits">Nenhuma visita registrada no histórico.</p>
+          {historyData.length === 0 ? (
+            <p className="no-visitors">Nenhuma visita encerrada até o momento.</p>
           ) : (
             <table>
               <thead>
@@ -53,28 +54,30 @@ export default function History() {
                   <th>Setor</th>
                   <th>Entrada</th>
                   <th>Saída</th>
-                  <th>Tempo</th>
                 </tr>
               </thead>
               <tbody>
-                {visits.map((visit, index) => {
-                  const entryDate = new Date(visit.entry_date);
-                  const exitDate = new Date(visit.exit_date);
-                  const duration = Math.floor((exitDate - entryDate) / (1000 * 60)); // minutos
-                  
-                  return (
-                    <tr key={visit.id}>
-                      <td>{index + 1}</td>
-                      <td>{visit.name || 'Não informado'}</td>
-                      <td>{visit.cpf || 'Não informado'}</td>
-                      <td>{visit.company || 'Não informado'}</td>
-                      <td>{visit.sector || 'Não informado'}</td>
-                      <td>{entryDate.toLocaleString()}</td>
-                      <td>{exitDate.toLocaleString()}</td>
-                      <td>{duration} minutos</td>
-                    </tr>
-                  );
-                })}
+                {historyData.map((visitor, index) => (
+                  <tr key={visitor.id}>
+                    <td>{index + 1}</td>
+                    <td>{visitor.name || 'Não informado'}</td>
+                    <td>{visitor.cpf || 'Não informado'}</td>
+                    <td>{visitor.company || visitor.empresa || 'Não informado'}</td>
+                    <td>{visitor.sector || visitor.setor || 'Não informado'}</td>
+                    <td>
+                      {visitor.entry_date ? 
+                        new Date(visitor.entry_date).toLocaleString() : 
+                        new Date(visitor.created_at).toLocaleString()
+                      }
+                    </td>
+                    <td>
+                      {visitor.exit_date ? 
+                        new Date(visitor.exit_date).toLocaleString() : 
+                        'Não informado'
+                      }
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           )}
