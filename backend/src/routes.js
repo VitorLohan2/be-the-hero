@@ -114,5 +114,20 @@ routes.put('/incidents/:id',
   IncidentController.update
 );
 
+// Rota dedicada apenas para bloqueio (similar à rota de delete)
+routes.put('/incidents/:id/block',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().required(),
+    }),
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required(), // Mantemos a autorização
+    }).unknown(),
+    [Segments.BODY]: Joi.object().keys({
+      bloqueado: Joi.boolean().required() // Campo obrigatório
+    })
+  }),
+  IncidentController.blockIncident // Novo método no controller
+);
 
 module.exports = routes

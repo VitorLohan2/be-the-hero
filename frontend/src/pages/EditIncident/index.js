@@ -15,9 +15,10 @@ export default function EditIncident() {
     setor: '',
     telefone: '',
     observacao: '',
-    bloqueado: false // novo campo
+    bloqueado: false
   });
 
+  const [isAdmin, setIsAdmin] = useState(false);
   const history = useHistory();
   const { id } = useParams();
 
@@ -25,17 +26,21 @@ export default function EditIncident() {
   const setores = ["Reunião", "Entrega", "Visita"];
 
   useEffect(() => {
+    console.log('userType:', localStorage.getItem('ongType'));
+    console.log('ongId:', localStorage.getItem('ongId'));
+    // Verifica se é ADM quando o componente carrega
+    setIsAdmin(localStorage.getItem('ongType') === 'ADM');
+    
     async function loadIncident() {
       try {
         const response = await api.get(`/incidents/${id}`);
         const data = response.data;
 
-        // Formatar CPF e telefone ao carregar
         setForm({
           ...data,
           cpf: formatCPF(data.cpf || ''),
           telefone: formatTelefone(data.telefone || ''),
-          bloqueado: data.bloqueado || false // <-- pega do backend
+          bloqueado: Boolean(data.bloqueado)
         });
       } catch (err) {
         alert('Erro ao carregar dados do incidente');
@@ -76,47 +81,69 @@ export default function EditIncident() {
     setForm(prev => ({ ...prev, telefone: formatted }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  const cpfClean = form.cpf.replace(/\D/g, '');
-  const telefoneClean = form.telefone.replace(/\D/g, '');
-
-  if (cpfClean.length !== 11) {
-    return alert('CPF inválido. Deve conter 11 dígitos.');
-  }
-
-  if (telefoneClean.length !== 11) {
-    return alert('Telefone inválido. Deve conter 11 dígitos com DDD.');
-  }
-
-  if (!form.empresa || !form.setor) {
-    return alert('Empresa e setor são obrigatórios.');
-  }
-
-  const payload = {
-    nome: form.nome,
-    nascimento: form.nascimento,
-    cpf: cpfClean,
-    empresa: form.empresa,
-    setor: form.setor,
-    telefone: telefoneClean,
-    observacao: form.observacao,
+  // Nova função para lidar com o bloqueio
+  const handleBlockChange = async (e) => {
+    if (!isAdmin) return;
+    
+    const novoEstado = e.target.checked;
+    
+    try {
+      await api.put(`/incidents/${id}/block`, 
+        { bloqueado: novoEstado },
+        { headers: { authorization: localStorage.getItem('ongId') } }
+      );
+      setForm(prev => ({ ...prev, bloqueado: novoEstado }));
+      alert(`Cadastro ${novoEstado ? 'bloqueado' : 'desbloqueado'} com sucesso!`);
+    } catch (err) {
+      console.error('Erro ao atualizar bloqueio:', err);
+      alert(err.response?.data?.error || 'Erro ao atualizar status de bloqueio');
+      // Reverte a mudança em caso de erro
+      setForm(prev => ({ ...prev, bloqueado: !novoEstado }));
+    }
   };
 
-  if (localStorage.getItem('userType') === 'ADM') {
-    payload.bloqueado = form.bloqueado;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    await api.put(`/incidents/${id}`, payload);
-    alert('Incidente atualizado com sucesso!');
-    history.push('/profile');
-  } catch (err) {
-    alert('Erro ao atualizar incidente');
-  }
-};
+    const cpfClean = form.cpf.replace(/\D/g, '');
+    const telefoneClean = form.telefone.replace(/\D/g, '');
 
+    if (cpfClean.length !== 11) {
+      return alert('CPF inválido. Deve conter 11 dígitos.');
+    }
+
+    if (telefoneClean.length !== 11) {
+      return alert('Telefone inválido. Deve conter 11 dígitos com DDD.');
+    }
+
+    if (!form.empresa || !form.setor) {
+      return alert('Empresa e setor são obrigatórios.');
+    }
+
+    const payload = {
+      nome: form.nome,
+      nascimento: form.nascimento,
+      cpf: cpfClean,
+      empresa: form.empresa,
+      setor: form.setor,
+      telefone: telefoneClean,
+      observacao: form.observacao
+      // Removido o bloqueado do payload principal
+    };
+
+    try {
+      await api.put(`/incidents/${id}`, payload, {
+        headers: {
+          authorization: localStorage.getItem('ongId')
+        }
+      });
+      alert('Dados atualizados com sucesso!');
+      history.push('/profile');
+    } catch (err) {
+      console.error('Erro na atualização:', err.response?.data || err);
+      alert(err.response?.data?.error || 'Erro ao atualizar incidente');
+    }
+  };
 
   return (
     <div className="new-incident-container">
@@ -193,17 +220,18 @@ const handleSubmit = async (e) => {
           <div className="checkbox-container">
           <input
             type="checkbox"
-            checked={form.bloqueado || false}
-            onChange={(e) => {
-              if (localStorage.getItem('userType') === 'ADM') {
-                setForm((prev) => ({ ...prev, bloqueado: e.target.checked }));
-              }
-            }}
-            disabled={localStorage.getItem('userType') !== 'ADM'}
+            id="bloqueado-checkbox"
+            checked={form.bloqueado}
+            onChange={handleBlockChange}
+            disabled={!isAdmin}
+            className={!isAdmin ? 'disabled-checkbox' : ''}
           />
-          <strong>Bloquear acesso</strong>
-        </div>
-        
+          <label htmlFor="bloqueado-checkbox">
+            {form.bloqueado ? '✅ Cadastro Bloqueado' : '⛔ Bloquear Acesso'}
+          </label>
+          </div>
+
+          
           <textarea
             name="observacao"
             placeholder="Observações"

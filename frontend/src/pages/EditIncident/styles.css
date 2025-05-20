@@ -49,57 +49,49 @@
   filter: brightness(90%);
 }
 
-/* Estilo para o checkbox de bloqueio */
-.edit-container form .checkbox-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.edit-container form .checkbox-container input[type="checkbox"] {
-  width: 20px; /* Ajustando o tamanho do checkbox */
-  height: 20px;
-  accent-color: #e02041; /* Cor personalizada do checkbox (funciona nos navegadores modernos) */
-  cursor: pointer;
-}
-
-.edit-container form .checkbox-container input[type="checkbox"]:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.edit-container form .checkbox-container strong {
-  font-size: 16px;
-  color: #333;
-}
-/* Container para o checkbox */
+/* Container do checkbox */
 .checkbox-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 12px;
+  /*margin-bottom: 20px;*/
+  margin: 8px 0 0;
 }
 
-/* Estilo do checkbox */
+/* Oculta o checkbox padrão */
 .checkbox-container input[type="checkbox"] {
-  width: 20px; /* Ajusta o tamanho do checkbox */
-  height: 20px;
-  accent-color: #e02041; /* Cor personalizada do checkbox (funciona nos navegadores modernos) */
+  display: none;
+}
+
+/* Estiliza o label como botão */
+.checkbox-container label {
+  padding: 10px 20px;
+  background-color: #f0f0f5;
+  color: #c41010;
+  border: 2px solid #c41010;
+  border-radius: 8px;
   cursor: pointer;
-  margin: 0; /* Remove margens padrão do checkbox */
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
 }
 
-/* Estilo do texto ao lado do checkbox */
-.checkbox-container strong {
-  font-size: 16px;
-  color: #333;
-  margin: 0;
-  font-weight: normal;
+/* Quando o checkbox estiver marcado (bloqueado) */
+.checkbox-container input[type="checkbox"]:checked + label {
+  background-color: #666;
+  border: 2px solid #666;
+  color: #fff;
 }
 
-/* Estado desabilitado do checkbox */
-.checkbox-container input[type="checkbox"]:disabled {
+/* Efeito hover */
+.checkbox-container label:hover {
+  filter: brightness(95%);
+}
+
+/* Estado desabilitado */
+.checkbox-container input[type="checkbox"]:disabled + label {
+  background-color: #666;
+  border: 2px solid #666;
   opacity: 0.6;
   cursor: not-allowed;
 }

@@ -159,3 +159,8 @@
   color: #fff;
   background-color: #41414d;
 }
+
+.blocked-name {
+  color: red;
+  font-weight: bold;
+}

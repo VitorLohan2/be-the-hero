@@ -67,81 +67,91 @@ module.exports = {
     }
   },
 
-// Atualizar incidente
-async update(request, response) {
-  const { id } = request.params;
-  const ong_id = request.headers.authorization;
+  // Atualizar incidente (qualquer usuário pode editar campos normais)
+  async update(request, response) {
+    const { id } = request.params;
+    const ong_id = request.headers.authorization;
+    const { nome, nascimento, cpf, empresa, setor, telefone, observacao } = request.body;
 
-  const {
-    nome,
-    nascimento,
-    cpf,
-    empresa,
-    setor,
-    telefone,
-    observacao,
-    bloqueado // <- novo campo
-  } = request.body;
-
-  try {
-    const incident = await connection('incidents')
-      .where('id', id)
-      .first();
-
-    if (!incident) {
-      return response.status(404).json({ error: 'Cadastro não encontrado.' });
-    }
-
-    // Se estiver tentando alterar "bloqueado", precisa ser ADM
-    if (typeof bloqueado !== 'undefined') {
-      const ong = await connection('ongs')
-        .where('id', ong_id)
-        .select('type')
-        .first();
-
-      if (!ong || ong.type !== 'ADM') {
-        return response.status(403).json({ error: 'Somente administradores podem alterar o status de bloqueio.' });
+    try {
+      const incident = await connection('incidents').where('id', id).first();
+      if (!incident) {
+        return response.status(404).json({ error: 'Cadastro não encontrado.' });
       }
-    }
 
-    await connection('incidents')
-      .where('id', id)
-      .update({
+      await connection('incidents').where('id', id).update({
         nome,
         nascimento,
         cpf,
         empresa,
         setor,
         telefone,
-        observacao,
-        ...(typeof bloqueado !== 'undefined' && { bloqueado: !!bloqueado })
+        observacao
       });
 
-    return response.status(204).send();
-  } catch (err) {
-    return response.status(500).json({ error: 'Erro ao atualizar cadastro.' });
-  }
-},
+      return response.status(204).send();
+    } catch (err) {
+      return response.status(500).json({ error: 'Erro na atualização.' });
+    }
+  },
 
-  // Deletar incidente (somente se for ADM)
+  // Bloquear/desbloquear incidente (exclusivo para ADMs)
+  async blockIncident(request, response) {
+    const { id } = request.params;
+    const { bloqueado } = request.body;
+    const ong_id = request.headers.authorization;
+
+    try {
+      // Verificação estrita de ADM (igual ao delete)
+      const ong = await connection('ongs')
+        .where('id', ong_id)
+        .where('type', 'ADM')
+        .first();
+
+      if (!ong) {
+        console.log(`Tentativa de bloqueio não autorizada por: ${ong_id}`);
+        return response.status(403).json({
+          error: 'Somente administradores podem bloquear cadastros.'
+        });
+      }
+
+      const incident = await connection('incidents').where('id', id).first();
+      if (!incident) {
+        return response.status(404).json({ error: 'Cadastro não encontrado.' });
+      }
+
+      // Atualiza apenas o status de bloqueio (SQLite usa 0/1)
+      await connection('incidents')
+        .where('id', id)
+        .update({ bloqueado: bloqueado ? 1 : 0 });
+
+      return response.status(204).send();
+    } catch (err) {
+      console.error('Erro no bloqueio:', err);
+      return response.status(500).json({ 
+        error: 'Erro ao atualizar bloqueio.' 
+      });
+    }
+  },
+
+  // Deletar incidente (exclusivo para ADMs)
   async delete(request, response) {
     const { id } = request.params;
     const ong_id = request.headers.authorization;
 
     const ong = await connection('ongs')
       .where('id', ong_id)
-      .select('type')
+      .where('type', 'ADM')
       .first();
 
-    if (!ong || ong.type !== 'ADM') {
+    if (!ong) {
       return response.status(403).json({
-        error: 'Somente administradores.'
+        error: 'Somente administradores podem excluir cadastros.'
       });
     }
 
     const incident = await connection('incidents')
       .where('id', id)
-      .select('id')
       .first();
 
     if (!incident) {

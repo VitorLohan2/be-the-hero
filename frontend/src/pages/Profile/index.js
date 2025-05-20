@@ -51,6 +51,11 @@ export default function Profile() {
   try {
     // Busca os dados do cadastro
     const incident = incidents.find(inc => inc.id === id);
+
+    if (incident.bloqueado) {
+    alert('Este visitante está bloqueado. Registro de visita não permitido.');
+    return;
+    }
     
     // Envia para a tabela de visitantes
     await api.post('/visitors', {
@@ -135,7 +140,7 @@ export default function Profile() {
           <tbody>
             {incidents.map(incident => (
               <tr key={incident.id}>
-                <td>{incident.nome}</td>
+                <td className={incident.bloqueado ? 'blocked-name' : ''}>{incident.nome}</td>
                 <td>{incident.nascimento}</td>
                 <td>{incident.cpf}</td>
                 <td>{incident.empresa}</td>
