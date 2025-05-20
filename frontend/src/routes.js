@@ -7,6 +7,7 @@ import Profile from './pages/Profile'
 import NewIncident from './pages/NewIncident'
 import Visitors from './pages/Visitors'
 import History from './pages/History'
+import EditIncident from './pages/EditIncident';
 
 
 export default function Routes() {
@@ -17,8 +18,9 @@ export default function Routes() {
         <Route path="/register" component={Register} />
         <Route path="/profile" component={Profile} />
         <Route path="/incidents/new" component={NewIncident} />
-        <Route path="/visitors" component={Visitors} /> {/* Nova rota */}
+        <Route path="/visitors" component={Visitors} /> 
         <Route path="/history" component={History} />
+        <Route path="/incidents/edit/:id" component={EditIncident} /> {/* Nova rota */}
       </Switch>
     </BrowserRouter>
   )

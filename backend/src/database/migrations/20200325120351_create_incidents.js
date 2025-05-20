@@ -9,6 +9,7 @@ exports.up = function(knex) {
     table.string('setor').notNullable()
     table.string('telefone')
     table.string('observacao')
+    table.boolean('bloqueado').defaultTo(false);
     
     table.string('ong_id').notNullable()
     
@@ -17,5 +18,5 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-  return knex.schema.dropTable('incidents')
+  return knex.schema.dropTable('incidents');
 };

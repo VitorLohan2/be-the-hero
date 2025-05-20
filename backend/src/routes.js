@@ -41,11 +41,7 @@ routes.get('/incidents', celebrate({
 
 routes.post('/incidents', IncidentController.create)
 
-/*routes.delete('/incidents/:id', celebrate({
-  [Segments.PARAMS]: Joi.object().keys({
-    id: Joi.number().required(),
-  })
-}), IncidentController.delete)*/
+
 
 routes.delete('/incidents/:id', celebrate({
   [Segments.PARAMS]: Joi.object().keys({
@@ -97,13 +93,26 @@ routes.get('/history',
   VisitorController.history
 );
 
-/*routes.post('/visitors/:id/end', celebrate({
-  [Segments.PARAMS]: Joi.object().keys({
-    id: Joi.number().required()
+routes.get('/incidents/:id', IncidentController.show);
+
+routes.put('/incidents/:id',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().required(), // Certifique-se de que o ID seja um número
+    }),
+    [Segments.BODY]: Joi.object().keys({
+      nome: Joi.string().required(),
+      nascimento: Joi.string().required(),
+      cpf: Joi.string().required(),
+      empresa: Joi.string().required(),
+      setor: Joi.string().required(),
+      telefone: Joi.string().required(),
+      observacao: Joi.string().allow('', null),
+      bloqueado: Joi.boolean().optional()
+    })
   }),
-  [Segments.HEADERS]: Joi.object({
-    authorization: Joi.string().required()
-  }).unknown()
-}), VisitorController.endVisit);*/
+  IncidentController.update
+);
+
 
 module.exports = routes

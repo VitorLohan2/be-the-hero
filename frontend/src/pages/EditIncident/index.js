@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+// src/pages/Incidents/index.js
+import React, { useState, useEffect } from 'react';
+import { Link, useHistory, useParams } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 import api from '../../services/api';
 import './styles.css';
 import logoImg from '../../assets/logo.svg';
 
-export default function NewVisitor() {
+export default function EditIncident() {
   const [form, setForm] = useState({
     nome: '',
     nascimento: '',
@@ -13,17 +14,42 @@ export default function NewVisitor() {
     empresa: '',
     setor: '',
     telefone: '',
-    observacao: ''
+    observacao: '',
+    bloqueado: false // novo campo
   });
 
   const history = useHistory();
+  const { id } = useParams();
+
   const empresas = ["Dime", "Dimep", "Dime Saúde"];
   const setores = ["Reunião", "Entrega", "Visita"];
 
+  useEffect(() => {
+    async function loadIncident() {
+      try {
+        const response = await api.get(`/incidents/${id}`);
+        const data = response.data;
+
+        // Formatar CPF e telefone ao carregar
+        setForm({
+          ...data,
+          cpf: formatCPF(data.cpf || ''),
+          telefone: formatTelefone(data.telefone || ''),
+          bloqueado: data.bloqueado || false // <-- pega do backend
+        });
+      } catch (err) {
+        alert('Erro ao carregar dados do incidente');
+        history.push('/profile');
+      }
+    }
+
+    loadIncident();
+  }, [id, history]);
+
   const formatCPF = (value) => {
-    const cleaned = value.replace(/\D/g, '').slice(0, 11);
+    const cleaned = value.replace(/\D/g, '');
     const match = cleaned.match(/(\d{3})(\d{3})(\d{3})(\d{2})/);
-    return match ? `${match[1]}.${match[2]}.${match[3]}-${match[4]}` : cleaned;
+    return match ? `${match[1]}.${match[2]}.${match[3]}-${match[4]}` : value;
   };
 
   const formatTelefone = (value) => {
@@ -31,7 +57,7 @@ export default function NewVisitor() {
     if (cleaned.length === 11) {
       return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
     }
-    return cleaned;
+    return value;
   };
 
   const handleChange = (e) => {
@@ -50,49 +76,55 @@ export default function NewVisitor() {
     setForm(prev => ({ ...prev, telefone: formatted }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const cpfClean = form.cpf.replace(/\D/g, '');
-    const telefoneClean = form.telefone.replace(/\D/g, '');
+  const cpfClean = form.cpf.replace(/\D/g, '');
+  const telefoneClean = form.telefone.replace(/\D/g, '');
 
-    if (cpfClean.length !== 11) {
-      return alert('CPF inválido. Deve conter 11 dígitos.');
-    }
+  if (cpfClean.length !== 11) {
+    return alert('CPF inválido. Deve conter 11 dígitos.');
+  }
 
-    if (telefoneClean.length !== 11) {
-      return alert('Telefone inválido. Deve conter 11 dígitos com DDD.');
-    }
+  if (telefoneClean.length !== 11) {
+    return alert('Telefone inválido. Deve conter 11 dígitos com DDD.');
+  }
 
-    if (!form.empresa || !form.setor) {
-      return alert('Empresa e setor são obrigatórios.');
-    }
+  if (!form.empresa || !form.setor) {
+    return alert('Empresa e setor são obrigatórios.');
+  }
 
-    try {
-      await api.post('/incidents', {
-        ...form,
-        cpf: cpfClean,
-        telefone: telefoneClean
-      }, {
-        headers: {
-          Authorization: localStorage.getItem('ongId')
-        }
-      });
-
-      alert('Visitante cadastrado!');
-      history.push('/profile');
-    } catch (err) {
-      alert('Erro no cadastro');
-    }
+  const payload = {
+    nome: form.nome,
+    nascimento: form.nascimento,
+    cpf: cpfClean,
+    empresa: form.empresa,
+    setor: form.setor,
+    telefone: telefoneClean,
+    observacao: form.observacao,
   };
+
+  if (localStorage.getItem('userType') === 'ADM') {
+    payload.bloqueado = form.bloqueado;
+  }
+
+  try {
+    await api.put(`/incidents/${id}`, payload);
+    alert('Incidente atualizado com sucesso!');
+    history.push('/profile');
+  } catch (err) {
+    alert('Erro ao atualizar incidente');
+  }
+};
+
 
   return (
     <div className="new-incident-container">
       <div className="content">
         <section>
           <img src={logoImg} alt="Logo" width="350px" />
-          <h1>Cadastrar Visitante</h1>
-          <p>Informe os dados do visitante.</p>
+          <h1>Editar Cadastro</h1>
+          <p>Atualize os dados do cadastro.</p>
           <Link className="back-link" to="/profile">
             <FiArrowLeft size={16} color="#e02041" />
             Voltar
@@ -158,6 +190,20 @@ export default function NewVisitor() {
             required
           />
 
+          <div className="checkbox-container">
+          <input
+            type="checkbox"
+            checked={form.bloqueado || false}
+            onChange={(e) => {
+              if (localStorage.getItem('userType') === 'ADM') {
+                setForm((prev) => ({ ...prev, bloqueado: e.target.checked }));
+              }
+            }}
+            disabled={localStorage.getItem('userType') !== 'ADM'}
+          />
+          <strong>Bloquear acesso</strong>
+        </div>
+        
           <textarea
             name="observacao"
             placeholder="Observações"
@@ -166,11 +212,10 @@ export default function NewVisitor() {
           />
 
           <button className="button" type="submit">
-            Cadastrar
+            Atualizar
           </button>
         </form>
       </div>
     </div>
   );
 }
-

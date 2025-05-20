@@ -43,7 +43,7 @@ export default function Profile() {
     }
   } catch (err) {
     const error = err.response?.data?.error || err.message;
-    alert(`Falha ao deletar: ${error}`);
+    alert(`Acesso Bloqueado: ${error}`);
   }
 }
 
