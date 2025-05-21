@@ -26,6 +26,10 @@
   align-items: center;
 }
 
+.back-link {
+  margin-top: 0px;
+}
+
 .visitors-container .back-link {
   display: flex;
   align-items: center;

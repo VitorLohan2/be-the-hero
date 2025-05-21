@@ -8,6 +8,8 @@ import NewIncident from './pages/NewIncident'
 import Visitors from './pages/Visitors'
 import History from './pages/History'
 import EditIncident from './pages/EditIncident';
+import ViewVisitor from './pages/ViewVisitor'
+
 
 
 export default function Routes() {
@@ -20,7 +22,8 @@ export default function Routes() {
         <Route path="/incidents/new" component={NewIncident} />
         <Route path="/visitors" component={Visitors} /> 
         <Route path="/history" component={History} />
-        <Route path="/incidents/edit/:id" component={EditIncident} /> {/* Nova rota */}
+        <Route path="/incidents/edit/:id" component={EditIncident} />
+        <Route path="/incidents/view/:id" component={ViewVisitor} />
       </Switch>
     </BrowserRouter>
   )

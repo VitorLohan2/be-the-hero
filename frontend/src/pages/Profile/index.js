@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { FiPower, FiTrash2, FiUserPlus, FiEdit, FiUsers, FiClock } from 'react-icons/fi'
+import { FiPower, FiTrash2, FiUserPlus, FiEdit, FiUsers, FiClock, FiSearch } from 'react-icons/fi'
 
 import api from '../../services/api'
 
@@ -10,10 +10,12 @@ import logoImg from '../../assets/logo.svg'
 import disable from '../../assets/disable.png'
 
 export default function Profile() {
- const [incidents, setIncidents] = useState([])
+  const [incidents, setIncidents] = useState([])
+  const [searchTerm, setSearchTerm] = useState('');
   const history = useHistory()
   const ongId = localStorage.getItem('ongId')
   const ongName = localStorage.getItem('ongName')
+
 
   useEffect(() => {
     api.get('profile', {
@@ -25,6 +27,11 @@ export default function Profile() {
     })
   }, [ongId])
   
+  const filteredIncidents = incidents.filter(incident =>
+  incident.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  incident.cpf.includes(searchTerm)
+  );
+
  async function handleDeleteIncident(id) {
   console.log('Botão clicado, ID:', id); // ← Adicione esta linha
   if (!window.confirm('Tem certeza que deseja deletar este cadastro?')) {
@@ -91,6 +98,10 @@ export default function Profile() {
   history.push('/history')
   }
 
+  function handleViewProfile(id) {
+  history.push(`/incidents/view/${id}`);
+  }
+
   function handleLogout() {
     localStorage.clear()
     history.push('/')
@@ -101,7 +112,17 @@ export default function Profile() {
       <header>
         <img src={logoImg} alt="DIME" />
         <span> Bem-vindo(a), {ongName} </span>
-
+        
+        <div className="search-container">
+        <FiSearch className="search-icon" size={16} />
+          <input
+          type="text"
+          placeholder="Consultar por nome ou CPF"
+          className="search-input"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <Link className="button" to="/incidents/new"> Cadastrar Visitante  </Link>
         <button onClick={handleLogout} type="button">
           <FiPower size={18} color="#e02041" />
@@ -139,7 +160,7 @@ export default function Profile() {
             </tr>
           </thead>
           <tbody>
-            {incidents.map(incident => (
+            {filteredIncidents.map(incident => (
               <tr key={incident.id}>
                 <td className={incident.bloqueado ? 'blocked-name' : ''}>
                   {incident.nome} {incident.bloqueado && (
@@ -162,6 +183,14 @@ export default function Profile() {
                     className="visit-button"
                   >
                     <FiUserPlus size={16} />
+                  </button>
+                  <button
+                  onClick={() => handleViewProfile(incident.id)}
+                  type="button"
+                  aria-label="Visualizar perfil"
+                  className="view-button"
+                  >
+                  <FiSearch size={16} />
                   </button>
                   <button 
                     onClick={() => handleEditProfile(incident.id)} 
