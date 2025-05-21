@@ -7,6 +7,7 @@ import api from '../../services/api'
 import './styles.css'
 
 import logoImg from '../../assets/logo.svg'
+import disable from '../../assets/disable.png'
 
 export default function Profile() {
  const [incidents, setIncidents] = useState([])
@@ -140,7 +141,14 @@ export default function Profile() {
           <tbody>
             {incidents.map(incident => (
               <tr key={incident.id}>
-                <td className={incident.bloqueado ? 'blocked-name' : ''}>{incident.nome}</td>
+                <td className={incident.bloqueado ? 'blocked-name' : ''}>
+                  {incident.nome} {incident.bloqueado && (
+                    <img 
+                      src={disable} 
+                      alt="Bloqueado" 
+                      className="lock-icon"
+                    />
+                  )}</td>
                 <td>{incident.nascimento}</td>
                 <td>{incident.cpf}</td>
                 <td>{incident.empresa}</td>

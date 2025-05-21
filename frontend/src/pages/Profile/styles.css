@@ -163,4 +163,15 @@
 .blocked-name {
   color: red;
   font-weight: bold;
+  line-height: 1.2;
+}
+
+.blocked-name .lock-icon {
+  display: inline;
+  vertical-align: baseline; /* Alinha verticalmente com o texto */
+  margin-left: 10px; /* Espaçamento entre nome e ícone */
+}
+.lock-icon {
+  position: relative;
+  top: 3px; /* Ajuste fino para centralizar */
 }

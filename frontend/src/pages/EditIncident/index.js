@@ -229,9 +229,8 @@ export default function EditIncident() {
           <label htmlFor="bloqueado-checkbox">
             {form.bloqueado ? '✅ Cadastro Bloqueado' : '⛔ Bloquear Acesso'}
           </label>
-          </div>
+        </div>
 
-          
           <textarea
             name="observacao"
             placeholder="Observações"
