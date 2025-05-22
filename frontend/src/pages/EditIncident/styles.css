@@ -16,6 +16,7 @@
   color: #333;
 }
 
+
 /* Campos do formulário */
 .edit-container form input {
   width: 100%;
@@ -90,8 +91,15 @@
 
 /* Estado desabilitado */
 .checkbox-container input[type="checkbox"]:disabled + label {
-  background-color: #666;
-  border: 2px solid #666;
+  background-color: #f0f0f0;
+  color: #999;
+  border: 2px solid #f0f0f0;
   opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input:disabled {
+  background-color: #f0f0f0;
+  color: #999;
   cursor: not-allowed;
 }

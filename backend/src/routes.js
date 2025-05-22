@@ -6,6 +6,7 @@ const IncidentController = require('./controllers/IncidentController')
 const ProfileController = require('./controllers/ProfileController')
 const SessionController = require('./controllers/SessionController')
 const VisitorController = require('./controllers/VisitorController');
+const upload = require('./config/multer');
 
 
 const routes = express.Router()

@@ -74,6 +74,10 @@ form textarea {
   transition: opacity 0.2s;
 }
 
+.form form .back-link {
+  margin-top: 20px;
+}
+
 .back-link svg {
   margin-right: 8px;
 }

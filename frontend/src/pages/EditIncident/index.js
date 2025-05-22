@@ -165,6 +165,7 @@ export default function EditIncident() {
             value={form.nome}
             onChange={handleChange}
             required
+            disabled={!isAdmin}
           />
 
           <input
@@ -173,6 +174,7 @@ export default function EditIncident() {
             value={form.nascimento}
             onChange={handleChange}
             required
+            disabled={!isAdmin}
           />
 
           <input
@@ -182,6 +184,7 @@ export default function EditIncident() {
             onChange={handleCpfChange}
             maxLength={14}
             required
+            disabled={!isAdmin}
           />
 
           <select
