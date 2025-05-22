@@ -1,7 +1,6 @@
   import React, { useState, useEffect } from 'react';
   import { Link, useHistory } from 'react-router-dom';
-  import { FiArrowLeft } from 'react-icons/fi';
-  import { FaFileExcel } from 'react-icons/fa';
+  import { FiArrowLeft, FiSearch } from 'react-icons/fi';
   
   import * as XLSX from 'xlsx';
   import { saveAs } from 'file-saver';
@@ -13,6 +12,7 @@
   import excel from '../../assets/xlss.png'
 
   export default function History() {
+    const [searchTerm, setSearchTerm] = useState('');
     const [historyData, setHistoryData] = useState([]);
     const ongId = localStorage.getItem('ongId');
     const ongName = localStorage.getItem('ongName');
@@ -27,6 +27,11 @@
         setHistoryData(response.data);
       });
     }, [ongId]);
+
+    const filteredHistoryData = historyData.filter(visitor =>
+    (visitor.name && visitor.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (visitor.cpf && visitor.cpf.includes(searchTerm))
+    );
 
     function exportToExcel(data) {
     const formattedData = data.map(visitor => ({
@@ -58,6 +63,17 @@
           <img src={logoImg} alt="DIME" />
           <span>Bem-vindo(a), {ongName}</span>
         </div>
+        <div className="search-container">
+        <FiSearch className="search-icon" size={16} />
+        <input
+          type="text"
+          placeholder="Consultar por nome ou CPF"
+          className="search-input"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+         />
+        </div>
+
         <Link className="back-link" to="/profile">
           <FiArrowLeft size={16} color="#E02041" />
           Voltar
@@ -66,7 +82,7 @@
 
       <div className="page-header">
         <button 
-          onClick={() => exportToExcel(historyData)} 
+          onClick={() => exportToExcel(filteredHistoryData)} 
           className="report-button"
         >
           <img src={excel} alt="Excel" className="excel-icon" />
@@ -79,7 +95,7 @@
             <h1>Histórico</h1>
             <h2>Visitantes com visita encerrada</h2>
 
-            {historyData.length === 0 ? (
+            {filteredHistoryData.length === 0 ? (
               <p className="no-visitors">Nenhuma visita encerrada até o momento.</p>
             ) : (
               <table>
@@ -95,7 +111,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {historyData.map((visitor, index) => (
+                  {filteredHistoryData.map((visitor, index) => (
                     <tr key={visitor.id}>
                       <td>{index + 1}</td>
                       <td>{visitor.name || 'Não informado'}</td>
