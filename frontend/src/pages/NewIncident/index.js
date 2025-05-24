@@ -1,3 +1,4 @@
+// src/pages/NewIncident/index.js
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
@@ -13,7 +14,8 @@ export default function NewVisitor() {
     empresa: '',
     setor: '',
     telefone: '',
-    observacao: ''
+    observacao: '',
+    fotos: []
   });
 
   const history = useHistory();
@@ -50,36 +52,67 @@ export default function NewVisitor() {
     setForm(prev => ({ ...prev, telefone: formatted }));
   };
 
+  const handleFileChange = (e) => {
+    const newFiles = Array.from(e.target.files);
+    
+    setForm(prev => {
+      // Verifica arquivos duplicados
+      const nonDuplicateFiles = newFiles.filter(newFile => 
+        !prev.fotos.some(existingFile => 
+          existingFile.name === newFile.name && 
+          existingFile.size === newFile.size &&
+          existingFile.lastModified === newFile.lastModified
+        )
+      );
+      
+      // Combina as fotos existentes com as novas (limitando a 3 no total)
+      const combinedFiles = [...prev.fotos, ...nonDuplicateFiles].slice(0, 3);
+      
+      // Mostra alerta se algum arquivo foi rejeitado por ser duplicado
+      if (nonDuplicateFiles.length < newFiles.length) {
+        alert('Algumas imagens foram ignoradas porque já foram selecionadas.');
+      }
+      
+      return { ...prev, fotos: combinedFiles };
+    });
+    
+    // Limpa o input para permitir nova seleção
+    e.target.value = '';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const cpfClean = form.cpf.replace(/\D/g, '');
     const telefoneClean = form.telefone.replace(/\D/g, '');
 
-    if (cpfClean.length !== 11) {
-      return alert('CPF inválido. Deve conter 11 dígitos.');
-    }
+    if (cpfClean.length !== 11) return alert('CPF inválido. Deve conter 11 dígitos.');
+    if (telefoneClean.length !== 11) return alert('Telefone inválido. Deve conter 11 dígitos com DDD.');
+    if (!form.empresa || !form.setor) return alert('Empresa e setor são obrigatórios.');
+    if (form.fotos.length === 0) return alert('Envie pelo menos uma imagem.');
 
-    if (telefoneClean.length !== 11) {
-      return alert('Telefone inválido. Deve conter 11 dígitos com DDD.');
-    }
+    const data = new FormData();
+    data.append('nome', form.nome);
+    data.append('nascimento', form.nascimento);
+    data.append('cpf', cpfClean);
+    data.append('empresa', form.empresa);
+    data.append('setor', form.setor);
+    data.append('telefone', telefoneClean);
+    data.append('observacao', form.observacao);
 
-    if (!form.empresa || !form.setor) {
-      return alert('Empresa e setor são obrigatórios.');
-    }
+    form.fotos.forEach((foto) => {
+      data.append('fotos', foto);
+    });
 
     try {
-      await api.post('/incidents', {
-        ...form,
-        cpf: cpfClean,
-        telefone: telefoneClean
-      }, {
+      await api.post('/incidents', data, {
         headers: {
+          'Content-Type': 'multipart/form-data',
           Authorization: localStorage.getItem('ongId')
         }
       });
 
-      alert('Visitante cadastrado!');
+      alert('Visitante cadastrado com sucesso!');
       history.push('/profile');
     } catch (err) {
       alert('Erro no cadastro');
@@ -164,6 +197,61 @@ export default function NewVisitor() {
             value={form.observacao}
             onChange={handleChange}
           />
+          
+          <div className="file-upload-wrapper">
+            {/* Input escondido */}
+            <input
+              type="file"
+              id="image-upload"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+              disabled={form.fotos.length >= 3}
+              style={{ display: 'none' }}
+            />
+            
+            {/* Botão personalizado */}
+            <label htmlFor="image-upload" className="upload-button">
+              <span className="button-icon">+</span>
+              <span className="button-text">Selecionar Imagens</span>
+            </label>
+            
+            {/* Texto de orientação */}
+            <div className="upload-hint">
+              {form.fotos.length < 3 
+                ? `Selecione mais ${3 - form.fotos.length} imagem(ns)` 
+                : 'Máximo de 3 imagens atingido'}
+            </div>
+            
+            {/* Pré-visualização das imagens */}
+            <div className="image-previews">
+              {form.fotos.map((file, index) => (
+                <div key={`${file.name}-${file.size}`} className="image-preview">
+                  <div className="image-container">
+                    <img 
+                      src={URL.createObjectURL(file)} 
+                      alt="Pré-visualização" 
+                      onLoad={() => URL.revokeObjectURL(file)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm(prev => ({
+                        ...prev,
+                        fotos: prev.fotos.filter((_, i) => i !== index)
+                      }))}
+                      className="remove-image"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="image-info">
+                    <span className="image-name">{file.name}</span>
+                    <span className="image-size">({Math.round(file.size/1024)} KB)</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <button className="button" type="submit">
             Cadastrar

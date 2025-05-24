@@ -1,4 +1,4 @@
-// src/pages/Incidents/index.js
+// src/pages/EditIncident/index.js
 import React, { useState, useEffect } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';

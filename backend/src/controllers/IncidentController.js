@@ -33,6 +33,9 @@ module.exports = {
     const { nome, nascimento, cpf, empresa, setor, telefone, observacao } = request.body;
     const ong_id = request.headers.authorization;
 
+    // Verifica se há arquivos enviados
+    const imagens = request.files?.map(file => file.filename) || [];
+
     const [id] = await connection('incidents').insert({
       nome,
       nascimento,
@@ -41,6 +44,9 @@ module.exports = {
       setor,
       telefone,
       observacao,
+      imagem1: imagens[0] || null,
+      imagem2: imagens[1] || null,
+      imagem3: imagens[2] || null,
       ong_id,
     });
 
@@ -60,8 +66,16 @@ module.exports = {
       if (!incident) {
         return response.status(404).json({ error: 'Cadastro não encontrado.' });
       }
+    // Criar array de fotos a partir dos campos individuais
+    const fotos = [];
+    if (incident.imagem1) fotos.push(incident.imagem1);
+    if (incident.imagem2) fotos.push(incident.imagem2);
+    if (incident.imagem3) fotos.push(incident.imagem3);
 
-      return response.json(incident);
+    return response.json({
+      ...incident,
+      fotos // Adiciona o array de fotos ao retorno
+    });
     } catch (err) {
       return response.status(500).json({ error: 'Erro ao buscar cadastro.' });
     }

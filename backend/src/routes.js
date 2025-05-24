@@ -6,7 +6,9 @@ const IncidentController = require('./controllers/IncidentController')
 const ProfileController = require('./controllers/ProfileController')
 const SessionController = require('./controllers/SessionController')
 const VisitorController = require('./controllers/VisitorController');
-const upload = require('./config/multer');
+const multer = require('multer');
+const multerConfig = require('./config/multer');
+const upload = multer(multerConfig);
 
 
 const routes = express.Router()
@@ -40,9 +42,24 @@ routes.get('/incidents', celebrate({
   })
 }), IncidentController.index)
 
-routes.post('/incidents', IncidentController.create)
-
-
+routes.post(
+  '/incidents',
+  upload.array('fotos', 3),
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required(),
+    }).unknown(),
+    [Segments.BODY]: Joi.object().keys({
+      nome: Joi.string().required(),
+      nascimento: Joi.string().required(),
+      cpf: Joi.string().required(),
+      empresa: Joi.string().required(),
+      setor: Joi.string().required(),
+      telefone: Joi.string().required(),
+      observacao: Joi.string().allow('', null)
+    })
+  }),
+  IncidentController.create);
 
 routes.delete('/incidents/:id', celebrate({
   [Segments.PARAMS]: Joi.object().keys({
