@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import { FiPower, FiTrash2, FiUserPlus, FiEdit, FiUsers, FiClock, FiSearch } from 'react-icons/fi'
+import { FiPower, FiTrash2, FiUserPlus, FiEdit, FiUsers, FiClock, FiSearch, FiMessageSquare } from 'react-icons/fi'
 
 import api from '../../services/api'
 
@@ -98,6 +98,10 @@ export default function Profile() {
   history.push('/history')
   }
 
+  function handleNavigateToTickets() {
+  history.push('/ticket-dashboard');
+  }
+
   function handleViewProfile(id) {
   history.push(`/incidents/view/${id}`);
   }
@@ -143,6 +147,12 @@ export default function Profile() {
           >
             <FiClock size={20} className="icone"/>
             <span>Histórico</span>
+          </button>
+           <button 
+              onClick={handleNavigateToTickets}
+              className="tickets-link"
+            >
+            <FiMessageSquare size={20} className="icone" /> <span>Tickets</span>
           </button>
       </div>
         <h1>Cadastrados</h1>

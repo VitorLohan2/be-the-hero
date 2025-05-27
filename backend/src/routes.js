@@ -5,7 +5,9 @@ const OngController = require('./controllers/OngController')
 const IncidentController = require('./controllers/IncidentController')
 const ProfileController = require('./controllers/ProfileController')
 const SessionController = require('./controllers/SessionController')
-const VisitorController = require('./controllers/VisitorController');
+const VisitorController = require('./controllers/VisitorController')
+const TicketController = require('./controllers/TicketController')
+
 const multer = require('multer');
 const multerConfig = require('./config/multer');
 const upload = multer(multerConfig);
@@ -29,6 +31,16 @@ routes.post('/ongs', celebrate({
     uf: Joi.string().required().length(2)
   })
 }), OngController.create)
+
+// Buscar uma ONG por ID
+routes.get('/ongs/:id',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.string().required()
+    })
+  }),
+  OngController.show);
+
 
 routes.get('/profile', celebrate({
   [Segments.HEADERS]: Joi.object({
@@ -147,5 +159,60 @@ routes.put('/incidents/:id/block',
   }),
   IncidentController.blockIncident // Novo método no controller
 );
+
+// Criar novo ticket
+routes.post('/tickets',
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      funcionario: Joi.string().required(),
+      motivo: Joi.string().required(),
+      descricao: Joi.string().required(),
+      setorResponsavel: Joi.string().required(),
+      nomeUsuario: Joi.string().required(),
+      setorUsuario: Joi.string().required()
+    })
+  }),
+  TicketController.create
+);
+
+// Listar tickets (usuário vê os próprios, admin vê todos)
+routes.get('/tickets',
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required()
+    }).unknown()
+  }),
+  TicketController.index
+);
+
+// Atualizar status do ticket
+routes.put('/tickets/:id',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().required()
+    }),
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required()
+    }).unknown(),
+    [Segments.BODY]: Joi.object().keys({
+      status: Joi.string().valid('Aberto', 'Em andamento', 'Resolvido').required()
+    })
+  }),
+  TicketController.update
+);
+
+// Ver detalhes de um ticket
+routes.get('/tickets/:id',
+  celebrate({
+    [Segments.PARAMS]: Joi.object().keys({
+      id: Joi.number().required()
+    }),
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required()
+    }).unknown()
+  }),
+  TicketController.show
+);
+
 
 module.exports = routes

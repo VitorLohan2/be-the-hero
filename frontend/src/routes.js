@@ -7,8 +7,10 @@ import Profile from './pages/Profile'
 import NewIncident from './pages/NewIncident'
 import Visitors from './pages/Visitors'
 import History from './pages/History'
-import EditIncident from './pages/EditIncident';
+import EditIncident from './pages/EditIncident'
 import ViewVisitor from './pages/ViewVisitor'
+import Ticket from './pages/Ticket'
+import TicketDashboard from './pages/TicketDashboard'
 
 
 
@@ -24,6 +26,8 @@ export default function Routes() {
         <Route path="/history" component={History} />
         <Route path="/incidents/edit/:id" component={EditIncident} />
         <Route path="/incidents/view/:id" component={ViewVisitor} />
+        <Route path="/tickets" exact component={Ticket} />
+        <Route path="/ticket-dashboard" component={TicketDashboard} />
       </Switch>
     </BrowserRouter>
   )

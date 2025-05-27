@@ -170,8 +170,8 @@
   margin-right: 0px;
 }
 
-.visitors-link:hover, .history-link:hover {
-  opacity: 0.5;
+.visitors-link:hover, .history-link:hover, .tickets-link:hover {
+  opacity: 0.9;
 }
 
 .history-link span {
@@ -229,4 +229,27 @@
 
 .search-input:focus {
   border-color: #4CAF50;
+}
+
+.tickets-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #20a3e0;
+  border: 0;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tickets-link span {
+  background: #20a3e0;
+  color: #fff;
+}
+
+.tickets-link .icone {
+  color: #fff;
+  background-color: #20a3e0;
 }
