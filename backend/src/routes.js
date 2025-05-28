@@ -201,6 +201,16 @@ routes.put('/tickets/:id',
   TicketController.update
 );
 
+// Contar tickets não visualizados (apenas para segurança)
+routes.get('/tickets/unseen',
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required()
+    }).unknown()
+  }),
+  TicketController.countUnseen
+);
+
 // Ver detalhes de um ticket
 routes.get('/tickets/:id',
   celebrate({
@@ -214,5 +224,14 @@ routes.get('/tickets/:id',
   TicketController.show
 );
 
+// Marcar tickets como visualizados (apenas para segurança)
+routes.put('/tickets/mark-seen',
+  celebrate({
+    [Segments.HEADERS]: Joi.object({
+      authorization: Joi.string().required()
+    }).unknown()
+  }),
+  TicketController.markAllSeen
+);
 
 module.exports = routes

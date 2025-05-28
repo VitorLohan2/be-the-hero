@@ -15,17 +15,44 @@ export default function Profile() {
   const history = useHistory()
   const ongId = localStorage.getItem('ongId')
   const ongName = localStorage.getItem('ongName')
+  const [unseenCount, setUnseenCount] = useState(0);
+  const [userData, setUserData] = useState({ setor: '' });
 
 
-  useEffect(() => {
-    api.get('profile', {
-      headers: {
-        Authorization: ongId,
+useEffect(() => {
+  const fetchData = async () => {
+    if (!ongId) return;
+
+    try {
+      // 1. Buscar os dados da ONG
+      const ongResponse = await api.get(`ongs/${ongId}`);
+      const setor = ongResponse.data.setor;
+      setUserData({ setor });
+
+      // 2. Buscar os visitantes cadastrados (equivalente a /profile)
+      const profileResponse = await api.get('profile', {
+        headers: { Authorization: ongId }
+      });
+      setIncidents(profileResponse.data);
+
+      // 3. Se for do setor Segurança, buscar tickets não visualizados
+      if (setor === 'Segurança') {
+        const unseenResponse = await api.get('/tickets/unseen', {
+          headers: { Authorization: ongId }
+        });
+        setUnseenCount(unseenResponse.data.count);
       }
-    }).then(response => {
-      setIncidents(response.data)
-    })
-  }, [ongId])
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error.response?.data || error.message);
+    }
+  };
+
+  fetchData();
+
+  const interval = setInterval(fetchData, 10000); // Atualiza a cada 10 segundos
+  return () => clearInterval(interval);
+}, [ongId]);
+
   
   const filteredIncidents = incidents.filter(incident =>
   incident.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -148,11 +175,17 @@ export default function Profile() {
             <FiClock size={20} className="icone"/>
             <span>Histórico</span>
           </button>
-           <button 
-              onClick={handleNavigateToTickets}
-              className="tickets-link"
-            >
-            <FiMessageSquare size={20} className="icone" /> <span>Tickets</span>
+          <button 
+            onClick={handleNavigateToTickets}
+            className="tickets-link"
+          >
+            <FiMessageSquare size={20} className="icone" />
+            <span>Tickets</span>
+            {userData.setor === 'Segurança' && unseenCount > 0 && (
+              <span className="notification-badge">
+                {unseenCount > 9 ? '9+' : unseenCount}
+              </span>
+            )}
           </button>
       </div>
         <h1>Cadastrados</h1>

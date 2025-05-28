@@ -144,7 +144,8 @@ module.exports = {
       // Atualiza o ticket
       const updateData = { 
         status,
-        data_atualizacao: connection.fn.now() 
+        data_atualizacao: connection.fn.now(),
+        visualizado: true
       };
 
       if (status === 'Resolvido') {
@@ -198,14 +199,75 @@ module.exports = {
         return res.status(403).json({ error: 'Acesso negado ao ticket' });
       }
 
-      return res.json(ticket);
+      // Marca como visualizado se ainda não foi
+      if (!ticket.visualizado) {
+        await connection('tickets')
+        .where('id', id)
+        .update({
+          visualizado: true,
+          data_atualizacao: connection.fn.now()
+        });
+      
+      // Atualiza o objeto local para refletir essa mudança
+      ticket.visualizado = true;
+      }
 
+    return res.json(ticket);
+
+  } catch (err) {
+    console.error('Erro ao buscar ticket:', err);
+    return res.status(500).json({ 
+      error: 'Erro ao buscar ticket',
+      detalhes: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+},
+
+  // Contar tickets não visualizados
+async countUnseen(req, res) {
+  const ong_id = req.headers.authorization;
+  
+  try {
+    // Verifica se a ONG existe e é do setor Segurança
+    const ong = await connection('ongs')
+      .where('id', ong_id)
+      .first();
+
+    if (!ong || ong.setor !== 'Segurança') {
+      return res.json({ count: 0 }); // Retorna 0 se não for segurança
+    }
+
+    const count = await connection('tickets')
+      .where({
+        setor_responsavel: 'Segurança',
+        visualizado: false,
+        status: 'Aberto'
+      })
+      .count('id as total');
+
+    return res.json({ count: count[0].total || 0 });
+  } catch (err) {
+    console.error('Erro ao contar tickets:', err);
+    return res.status(500).json({ error: 'Erro no servidor' });
+  }
+},
+
+  // Marcar todos como visualizados
+  async markAllSeen(req, res) {
+    const ong_id = req.headers.authorization;
+    
+    try {
+      await connection('tickets')
+        .where({
+          setor_responsavel: 'Segurança',
+          visualizado: false
+        })
+        .update({ visualizado: true });
+      
+      return res.json({ success: true });
     } catch (err) {
-      console.error('Erro ao buscar ticket:', err);
-      return res.status(500).json({ 
-        error: 'Erro ao buscar ticket',
-        detalhes: process.env.NODE_ENV === 'development' ? err.message : undefined
-      });
+      console.error(err);
+      return res.status(500).json({ error: 'Erro ao atualizar tickets' });
     }
   }
 };

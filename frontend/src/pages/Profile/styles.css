@@ -232,6 +232,7 @@
 }
 
 .tickets-link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -244,8 +245,27 @@
   cursor: pointer;
 }
 
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #e02041;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 4px 6px;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px white;
+  z-index: 1;
+}
+
 .tickets-link span {
-  background: #20a3e0;
+  /*background: #20a3e0;*/
   color: #fff;
 }
 
