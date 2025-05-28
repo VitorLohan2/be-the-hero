@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import { FiPower, FiTrash2, FiUserPlus, FiEdit, FiUsers, FiClock, FiSearch, FiMessageSquare } from 'react-icons/fi'
+import notificacaoSom from '../../assets/notificacao.mp3';
 
 import api from '../../services/api'
 
@@ -16,42 +17,50 @@ export default function Profile() {
   const ongId = localStorage.getItem('ongId')
   const ongName = localStorage.getItem('ongName')
   const [unseenCount, setUnseenCount] = useState(0);
+  const unseenRef = useRef(0);
   const [userData, setUserData] = useState({ setor: '' });
 
 
-useEffect(() => {
-  const fetchData = async () => {
-    if (!ongId) return;
+  useEffect(() => {
+      const fetchData = async () => {
+        if (!ongId) return;
 
-    try {
-      // 1. Buscar os dados da ONG
-      const ongResponse = await api.get(`ongs/${ongId}`);
-      const setor = ongResponse.data.setor;
-      setUserData({ setor });
+        try {
+          const ongResponse = await api.get(`ongs/${ongId}`);
+          const setor = ongResponse.data.setor;
+          setUserData({ setor });
 
-      // 2. Buscar os visitantes cadastrados (equivalente a /profile)
-      const profileResponse = await api.get('profile', {
-        headers: { Authorization: ongId }
-      });
-      setIncidents(profileResponse.data);
+          const profileResponse = await api.get('profile', {
+            headers: { Authorization: ongId }
+          });
+          setIncidents(profileResponse.data);
 
-      // 3. Se for do setor Segurança, buscar tickets não visualizados
-      if (setor === 'Segurança') {
-        const unseenResponse = await api.get('/tickets/unseen', {
-          headers: { Authorization: ongId }
-        });
-        setUnseenCount(unseenResponse.data.count);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error.response?.data || error.message);
-    }
-  };
+          if (setor === 'Segurança') {
+            const unseenResponse = await api.get('/tickets/unseen', {
+              headers: { Authorization: ongId }
+            });
 
-  fetchData();
+            const newCount = unseenResponse.data.count;
 
-  const interval = setInterval(fetchData, 10000); // Atualiza a cada 10 segundos
-  return () => clearInterval(interval);
-}, [ongId]);
+            // compara com o valor armazenado em unseenRef.current
+            if (newCount > unseenRef.current) {
+              const audio = new Audio(notificacaoSom);
+              audio.play().catch(err => console.error("Erro ao tocar som:", err));
+            }
+
+            unseenRef.current = newCount;  // atualiza o valor armazenado
+            setUnseenCount(newCount);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar dados:', error.response?.data || error.message);
+        }
+      };
+
+      fetchData();
+
+      const interval = setInterval(fetchData, 10000);
+      return () => clearInterval(interval);
+    }, [ongId]);
 
   
   const filteredIncidents = incidents.filter(incident =>
