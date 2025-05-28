@@ -19,6 +19,7 @@ export default function Profile() {
   const [unseenCount, setUnseenCount] = useState(0);
   const unseenRef = useRef(0);
   const [userData, setUserData] = useState({ setor: '' });
+  const isFirstLoad = useRef(true);
 
 
   useEffect(() => {
@@ -42,14 +43,15 @@ export default function Profile() {
 
             const newCount = unseenResponse.data.count;
 
-            // compara com o valor armazenado em unseenRef.current
-            if (newCount > unseenRef.current) {
+            // Toca som apenas se não for a primeira execução e houver novos tickets
+            if (!isFirstLoad.current && newCount > unseenRef.current) {
               const audio = new Audio(notificacaoSom);
               audio.play().catch(err => console.error("Erro ao tocar som:", err));
             }
 
             unseenRef.current = newCount;  // atualiza o valor armazenado
             setUnseenCount(newCount);
+            isFirstLoad.current = false; // após a primeira execução
           }
         } catch (error) {
           console.error('Erro ao carregar dados:', error.response?.data || error.message);
