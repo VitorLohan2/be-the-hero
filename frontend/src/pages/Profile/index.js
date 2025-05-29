@@ -9,6 +9,7 @@ import './styles.css'
 
 import logoImg from '../../assets/logo.svg'
 import disable from '../../assets/disable.png'
+import userIcon from '../../assets/user.png'
 
 export default function Profile() {
   const [incidents, setIncidents] = useState([])
@@ -216,14 +217,15 @@ export default function Profile() {
           <tbody>
             {filteredIncidents.map(incident => (
               <tr key={incident.id}>
-                <td className={incident.bloqueado ? 'blocked-name' : ''}>
-                  {incident.nome} {incident.bloqueado && (
-                    <img 
-                      src={disable} 
-                      alt="Bloqueado" 
-                      className="lock-icon"
-                    />
-                  )}</td>
+              <td className={incident.bloqueado ? 'blocked-name' : ''}>
+                <div className="user-info">
+                  {incident.bloqueado
+                    ? <img src={disable} alt="Bloqueado" className="lock-icon" />
+                    : <img src={userIcon} alt="Usuário" className="user-icon" />
+                  }
+                  <span>{incident.nome}</span>
+                </div>
+              </td>
                 <td>{incident.nascimento}</td>
                 <td>{incident.cpf}</td>
                 <td>{incident.empresa}</td>

@@ -25,7 +25,13 @@ export default function History() {
         Authorization: ongId,
       },
     }).then(response => {
-      setHistoryData(response.data);
+    // Ordenar os dados por data de entrada (mais recente primeiro)
+    const sortedData = response.data.sort((a, b) => {
+      const dateA = new Date(a.entry_date || a.created_at);
+      const dateB = new Date(b.entry_date || b.created_at);
+      return dateB - dateA; // Ordem decrescente
+    });
+    setHistoryData(sortedData);
     });
   }, [ongId]);
 
@@ -141,7 +147,7 @@ export default function History() {
               <tbody>
                 {filteredHistoryData.map((visitor, index) => (
                   <tr key={visitor.id}>
-                    <td>{index + 1}</td>
+                    <td>{filteredHistoryData.length - index}</td>
                     <td>{visitor.name || 'Não informado'}</td>
                     <td>{visitor.cpf || 'Não informado'}</td>
                     <td>{visitor.company || visitor.empresa || 'Não informado'}</td>

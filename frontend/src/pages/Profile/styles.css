@@ -190,14 +190,20 @@
   line-height: 1.2;
 }
 
-.blocked-name .lock-icon {
-  display: inline;
-  vertical-align: baseline; /* Alinha verticalmente com o texto */
-  margin-left: 10px; /* Espaçamento entre nome e ícone */
+td .user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Espaço entre ícone e nome */
 }
-.lock-icon {
+
+.user-icon, .lock-icon {
   position: relative;
-  top: 3px; /* Ajuste fino para centralizar */
+  top: 0px; /* Pequeno ajuste vertical */
+}
+
+.blocked-name span {
+  color: red;
+  font-weight: bold;
 }
 
 /*CAMPO DE BUSCA*/
